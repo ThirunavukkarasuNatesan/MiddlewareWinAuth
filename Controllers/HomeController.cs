@@ -37,29 +37,29 @@ namespace MiddlewareWinAuth.Controllers
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
-        [HttpGet]
-        [Route("token")]
-        public async Task<TokenDetail> Token()
-        {
-            ProcessToken pt = new ProcessToken();
-            TokenDetail tk = new TokenDetail();
-            try
-            {
+        //[HttpGet]
+        //[Route("token")]
+        //public async Task<TokenDetail> Token()
+        //{
+        //    ProcessToken pt = new ProcessToken();
+        //    TokenDetail tk = new TokenDetail();
+        //    try
+        //    {
 
-               // var user = (WindowsIdentity)HttpContext.User.Identity;
-                var curUser = System.Security.Principal.WindowsIdentity.GetCurrent();
+        //       // var user = (WindowsIdentity)HttpContext.User.Identity;
+        //        var curUser = System.Security.Principal.WindowsIdentity.GetCurrent();
 
                 
-                tk.name = curUser.Name;
-                tk.token = curUser.Token.ToString();
-                tk.AccessToken = curUser.AccessToken.DangerousGetHandle().ToString();
-                tk.name2 = curUser.Name;
-            }
-            catch (Exception ex)
-            {
-                tk.error = ex.Message + "\n\r\n\r" + ex.StackTrace;
-            }
-            return tk;
-        }
+        //        tk.name = curUser.Name;
+        //        tk.token = curUser.Token.ToString();
+        //        tk.AccessToken = curUser.AccessToken.DangerousGetHandle().ToString();
+        //        tk.name2 = curUser.Name;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        tk.error = ex.Message + "\n\r\n\r" + ex.StackTrace;
+        //    }
+        //    return tk;
+        //}
     }
 }

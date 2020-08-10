@@ -4,10 +4,12 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.Negotiate;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Server.HttpSys;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -27,9 +29,11 @@ namespace MiddlewareWinAuth
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
-           // services.AddDataProtection()
-           //     .PersistKeysToFileSystem(new DirectoryInfo(Configuration["certificateDirectory"]))
-           //     .ProtectKeysWithCertificate(new X509Certificate2(Configuration["certificateName"], Configuration["certificatePassword"]));
+            services.AddAuthentication(NegotiateDefaults.AuthenticationScheme).AddNegotiate();
+            services.AddAuthentication(HttpSysDefaults.AuthenticationScheme);
+            // services.AddDataProtection()
+            //     .PersistKeysToFileSystem(new DirectoryInfo(Configuration["certificateDirectory"]))
+            //     .ProtectKeysWithCertificate(new X509Certificate2(Configuration["certificateName"], Configuration["certificatePassword"]));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -52,12 +56,15 @@ namespace MiddlewareWinAuth
 
             app.UseAuthorization();
 
+            app.UseAuthentication();
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
             });
+
         }
     }
 }
