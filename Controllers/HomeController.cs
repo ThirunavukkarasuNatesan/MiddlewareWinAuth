@@ -5,7 +5,10 @@ using System.Linq;
 using System.Security.Claims;
 using System.Security.Principal;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MiddlewareWinAuth.Models;
 using MiddlewareWinAuth.Services;
@@ -49,7 +52,7 @@ namespace MiddlewareWinAuth.Controllers
         //       // var user = (WindowsIdentity)HttpContext.User.Identity;
         //        var curUser = System.Security.Principal.WindowsIdentity.GetCurrent();
 
-                
+
         //        tk.name = curUser.Name;
         //        tk.token = curUser.Token.ToString();
         //        tk.AccessToken = curUser.AccessToken.DangerousGetHandle().ToString();
@@ -61,5 +64,29 @@ namespace MiddlewareWinAuth.Controllers
         //    }
         //    return tk;
         //}
+        [HttpGet]
+        [Route("authtoken")]
+        public async Task<TokenDetail> Token()
+        {
+            ProcessToken pt = new ProcessToken();
+            TokenDetail tk = new TokenDetail();
+            try
+            {
+
+                //var user= ServerCertificate
+
+
+               
+                tk.name = WindowsIdentity.GetCurrent().Name;
+                tk.token =  WindowsPrincipal.Current.Identity.Name;
+                //tk.AccessToken = curUser.AccessToken.DangerousGetHandle().ToString();
+                //tk.name2 = curUser.Name;
+            }
+            catch (Exception ex)
+            {
+                tk.error = ex.Message + "\n\r\n\r" + ex.StackTrace;
+            }
+            return tk;
+        }
     }
 }

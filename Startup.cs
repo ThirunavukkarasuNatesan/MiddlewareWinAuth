@@ -3,11 +3,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
+using System.Security.Principal;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.Negotiate;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Server.HttpSys;
 using Microsoft.Extensions.Configuration;
@@ -64,7 +67,30 @@ namespace MiddlewareWinAuth
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
             });
+            //app.Run(async (context) =>
+            //{
+            //    try
+            //    {
+            //        var user = (WindowsIdentity)context.User.Identity;
 
+            //        await context.Response
+            //                     .WriteAsync($"User: {user.Name}\tState: {user.ImpersonationLevel}\n");
+
+            //        WindowsIdentity.RunImpersonated(user.AccessToken, () =>
+            //        {
+            //            var impersonatedUser = WindowsIdentity.GetCurrent();
+            //            var message =
+            //                $"User: {impersonatedUser.Name}\tState: {impersonatedUser.ImpersonationLevel}";
+
+            //            var bytes = Encoding.UTF8.GetBytes(message);
+            //            context.Response.Body.Write(bytes, 0, bytes.Length);
+            //        });
+            //    }
+            //    catch (Exception e)
+            //    {
+            //        await context.Response.WriteAsync(e.ToString());
+            //    }
+            //});
         }
     }
 }
