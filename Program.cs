@@ -19,60 +19,44 @@ namespace MiddlewareWinAuth
     {
         public static void Main(string[] args)
         {
-            CreateHostBuilder(args).Build().Run();
-        }
-
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(webBuilder =>
+            var config = new ConfigurationBuilder().AddJsonFile("appsettings.json", optional: false).Build();
+            var host = new WebHostBuilder()
+                //configure Kestrel web server
+                .UseKestrel(options =>
                 {
-                    webBuilder
-                     .UseKestrel(options =>
-                     {
-                         //configure certificates
-                         options.Listen(IPAddress.Loopback, 4430, listenOptions =>
-                         {
-                             //client certificate configuration
-                             var httpsOptions = new HttpsConnectionAdapterOptions();
-                             httpsOptions.ClientCertificateMode = ClientCertificateMode.RequireCertificate;
-                             httpsOptions.CheckCertificateRevocation = true;
-                             httpsOptions.ClientCertificateValidation +=
-                                 (certificate2, chain, arg3) =>
-                                 {
-                                     //this is where we verify the thumbprint of a connected client matches the thumbprint we expect
-                                     //NOTE: this is just a simple example of verifying a client cert.
-                                     
-                                     return certificate2.Thumbprint.Equals(
-                                              "51a8f4044c6fb500480d3ff79ce50149e033925a",
-                                              StringComparison.InvariantCultureIgnoreCase);
-                                     
-                                 };
+                    //configure certificates
+                    options.Listen(IPAddress.Loopback, 4430, listenOptions =>
+                    {
+                        //client certificate configuration
+                        var httpsOptions = new HttpsConnectionAdapterOptions();
+                        httpsOptions.ClientCertificateMode = ClientCertificateMode.RequireCertificate;
+                        httpsOptions.CheckCertificateRevocation = true;
+                        httpsOptions.ClientCertificateValidation +=
+                            (certificate2, chain, arg3) =>
+                            {
+                                //this is where we verify the thumbprint of a connected client matches the thumbprint we expect
+                                //NOTE: this is just a simple example of verifying a client cert.
+                                return certificate2.Thumbprint.Equals(config["clientcertificate"],
+                                    StringComparison.InvariantCultureIgnoreCase);
+                            };
 
-                             //server certificate configuration
-                             //in this case we're loading the cert from a file
-                             //this Server cert was created using IIS, but can be created using `makecert.exe` as well
-                             var certBuffer = File.ReadAllBytes(@"Certificate/localhost.p12");
-                             var serverCert = new X509Certificate2(certBuffer, "changeit");
+                        //server certificate configuration
+                        //in this case we're loading the cert from a file
+                        //this Server cert was created using IIS, but can be created using `makecert.exe` as well
+                        var certBuffer = File.ReadAllBytes(@"Certificate/localhost.pfx");
+                        var serverCert = new X509Certificate2(certBuffer, "123");
 
-                             httpsOptions.ServerCertificate = serverCert;
-                             listenOptions.UseHttps(httpsOptions);
-                             
-                         });
-                     })
+                        httpsOptions.ServerCertificate = serverCert;
+                        listenOptions.UseHttps(httpsOptions);
+                    });
+                })
                 .UseContentRoot(Directory.GetCurrentDirectory())
-                //.UseIISIntegration()
+                .UseIISIntegration()
                 .UseStartup<Startup>()
-                     .UseHttpSys(options =>
-                     {
-                         options.Authentication.Schemes =
-                        Microsoft.AspNetCore.Server.HttpSys.AuthenticationSchemes.NTLM |
-                             Microsoft.AspNetCore.Server.HttpSys.AuthenticationSchemes.Negotiate;
-                         options.Authentication.AllowAnonymous = false;
-                     });
                 //.UseApplicationInsights()
-                //.Build();
+                .Build();
 
-
-                });
+            host.Run();
+        }
     }
 }
